@@ -19,9 +19,7 @@ const getProduct = cache(async (id: string) => {
   return product;
 });
 
-export async function generateMetaData({ params: { id } }: ProductPageProps): Promise<Metadata> {
-  const product = await getProduct(id);
-
+function generateMetaData(product: any): Metadata {
   return {
     title: product.name + '- Budol Shop',
     description: product.description,
@@ -35,9 +33,7 @@ export async function generateMetaData({ params: { id } }: ProductPageProps): Pr
   };
 }
 
-export default async function ProductPage({ params: { id } }: ProductPageProps) {
-  const product = await getProduct(id);
-
+export default function ProductPage({ product }: { product: any }) {
   return (
     <div className="flex flex-col gap-4 rounded-lg bg-base-200 p-4 lg:flex-row lg:items-center">
       <Image
@@ -56,4 +52,16 @@ export default async function ProductPage({ params: { id } }: ProductPageProps) 
       </div>
     </div>
   );
+}
+
+export async function getServerSideProps({ params }: { params: { id: string } }) {
+  const product = await getProduct(params.id);
+  const metadata = generateMetaData(product);
+
+  return {
+    props: {
+      product,
+      metadata,
+    },
+  };
 }
