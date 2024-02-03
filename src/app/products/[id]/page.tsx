@@ -19,21 +19,9 @@ const getProduct = cache(async (id: string) => {
   return product;
 });
 
-function generateMetaData(product: any): Metadata {
-  return {
-    title: product.name + '- Budol Shop',
-    description: product.description,
-    openGraph: {
-      images: [
-        {
-          url: product.imageUrl,
-        },
-      ],
-    },
-  };
-}
+export default async function ProductPage({ params: { id } }: ProductPageProps) {
+  const product = await getProduct(id);
 
-export default function ProductPage({ product }: { product: any }) {
   return (
     <div className="flex flex-col gap-4 rounded-lg bg-base-200 p-4 lg:flex-row lg:items-center">
       <Image
@@ -52,16 +40,4 @@ export default function ProductPage({ product }: { product: any }) {
       </div>
     </div>
   );
-}
-
-export async function getServerSideProps({ params }: { params: { id: string } }) {
-  const product = await getProduct(params.id);
-  const metadata = generateMetaData(product);
-
-  return {
-    props: {
-      product,
-      metadata,
-    },
-  };
 }

@@ -27,3 +27,8 @@ export async function incrementProduct(productId: string) {
 
   revalidatePath('/products/[id]');
 }
+
+export async function getProductById(id: string) {
+  const product = await prisma.product.findUnique({ where: { id } });
+  return product;
+}

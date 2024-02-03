@@ -6,12 +6,6 @@ interface SearchPageProps {
   searchParams: { query: string };
 }
 
-export function generateMetadata({ searchParams: { query } }: SearchPageProps): Metadata {
-  return {
-    title: `Search: ${query} - Budol Shop`,
-  };
-}
-
 export default async function SearchPage({ searchParams: { query } }: SearchPageProps) {
   const products = await prisma.product.findMany({
     where: {
