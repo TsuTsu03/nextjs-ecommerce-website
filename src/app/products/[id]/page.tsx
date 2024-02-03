@@ -1,24 +1,43 @@
-import { GetStaticPaths, GetStaticProps, GetStaticPropsContext } from 'next';
-import Image from 'next/image';
+import PriceTag from '@/components/PriceTag';
 import { prisma } from '@/lib/db/prisma';
+import { Metadata } from 'next';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import { cache } from 'react';
 import CartButton from './CartButton';
 import { incrementProduct } from './actions';
-import PriceTag from '@/components/PriceTag';
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  description: string;
-  imageUrl: string;
-}
 
 interface ProductPageProps {
-  product: Product;
+  params: {
+    id: string;
+  };
 }
 
-export default function ProductPage({ product }: ProductPageProps) {
+const getProduct = cache(async (id: string) => {
+  const product = await prisma.product.findUnique({ where: { id } });
+  if (!product) notFound();
+  return product;
+});
+
+export async function generateMetaData({ params: { id } }: ProductPageProps): Promise<Metadata> {
+  const product = await getProduct(id);
+
+  return {
+    title: product.name + '- Budol Shop',
+    description: product.description,
+    openGraph: {
+      images: [
+        {
+          url: product.imageUrl,
+        },
+      ],
+    },
+  };
+}
+
+export default async function ProductPage({ params: { id } }: ProductPageProps) {
+  const product = await getProduct(id);
+
   return (
     <div className="flex flex-col gap-4 rounded-lg bg-base-200 p-4 lg:flex-row lg:items-center">
       <Image
@@ -38,40 +57,3 @@ export default function ProductPage({ product }: ProductPageProps) {
     </div>
   );
 }
-
-export const getStaticPaths: GetStaticPaths = async () => {
-  // Fetch the IDs of all products from the database
-  const products = await prisma.product.findMany();
-  const paths = products.map((product) => ({ params: { id: product.id } }));
-
-  return {
-    paths,
-    fallback: false, // Set to true if you want to enable incremental static regeneration
-  };
-};
-
-export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
-  const { id } = context.params ?? {};
-
-  if (!id) {
-    // Handle the case where id is undefined
-    return {
-      notFound: true,
-    };
-  }
-
-  // Fetch the product based on the ID from the database
-  const product = await prisma.product.findUnique({ where: { id: id as string } });
-
-  if (!product) {
-    return {
-      notFound: true,
-    };
-  }
-
-  return {
-    props: {
-      product,
-    },
-  };
-};
