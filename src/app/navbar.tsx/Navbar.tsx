@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import logo from '/Projects/my-ecommerce-app/src/assets/logo.png';
 import { redirect } from 'next/navigation';
 import { getCart } from '@/lib/db/addToCart';
 import CartButton from './CartButton';
+import logo from './logo.png';
 
 async function searchForProducts(formData: FormData) {
   'use server';
