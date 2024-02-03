@@ -4,7 +4,6 @@ import logo from '/Projects/my-ecommerce-app/src/assets/logo.png';
 import { redirect } from 'next/navigation';
 import { getCart } from '@/lib/db/addToCart';
 import CartButton from './CartButton';
-import { getServerSession } from 'next-auth';
 
 async function searchForProducts(formData: FormData) {
   'use server';
